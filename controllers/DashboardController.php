@@ -17,10 +17,10 @@ class DashboardController extends Controller
             $postData = Yii::$app->request->post();
 
             // 🔥 Chama API de criação
-            $ch = curl_init(Yii::$app->urlManager->createAbsoluteUrl(['api/despesas/create']));
+            $ch = curl_init(Yii::$app->urlManager->createAbsoluteUrl(['api/despesa/create']));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData['Despesa']));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData['Despesas']));
             $response = curl_exec($ch);
             curl_close($ch);
 

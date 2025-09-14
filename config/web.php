@@ -60,9 +60,10 @@ $config = [
                 'api/despesas/delete/<id:\d+>' => 'despesa/delete',
 
                 # ROTAS DO DASHBOARD (Frontend web)
-                'dashboard/despesas' => 'dashboard/despesas',
-                'dashboard/update/<id:\d+>' => 'dashboard/update',
-                'dashboard/delete/<id:\d+>' => 'dashboard/delete',
+                'dashboard/despesas/index' => 'dashboard/despesas',
+                'dashboard/despesas/create' => 'dashboard/despesas',
+                'dashboard/despesas/update/<id:\d+>' => 'dashboard/update',
+                'dashboard/despesas/delete/<id:\d+>' => 'dashboard/delete',
             ],
         ],
         // ...

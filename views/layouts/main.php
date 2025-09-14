@@ -31,7 +31,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
     </head>
     <body>
     <?php $this->beginBody() ?>
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <div class="wrap">
         <?php
         NavBar::begin([
