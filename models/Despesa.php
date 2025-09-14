@@ -1,14 +1,11 @@
 <?php
 namespace app\models;
 
-use Yii;
 use yii\db\ActiveRecord;
-class Despesas extends ActiveRecord
+use yii\behaviors\TimestampBehavior;
+
+class Despesa extends ActiveRecord
 {
-    public static function tableName()
-    {
-        return 'despesas';
-    }
 
     public function rules()
     {
@@ -40,10 +37,12 @@ class Despesas extends ActiveRecord
     {
         return [
             [
-                'class' => \yii\behaviors\TimestampBehavior::class,
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
-                'value' => new \yii\db\Expression('NOW()'),
+                'value' => function () {
+                    return date('Y-m-d H:i:s');
+                },
             ],
         ];
     }
@@ -118,3 +117,4 @@ class Despesas extends ActiveRecord
         ];
     }
 }
+

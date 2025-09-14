@@ -2,9 +2,8 @@
 namespace app\controllers;
 
 use Yii;
-use yii\rest\Controller;
+use yii\web\Controller;
 use yii\web\Response;
-use app\models\User;
 use app\models\SignupForm;
 use app\models\LoginForm;
 

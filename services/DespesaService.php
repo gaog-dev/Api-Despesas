@@ -10,7 +10,7 @@ class DespesaService
     public function createDespesa($data)
     {
         $despesa = new Despesa();
-        $despesa->load($data, '');
+        $despesa->load($data,'');
         $despesa->user_id = Yii::$app->user->id;
         
         if ($despesa->save()) {

@@ -26,7 +26,9 @@ $config = [
     ],
         // ...
         'jwt' => [
-            'class' => 'app\components\JwtComponent',
+            'class' => \app\components\JwtComponent::class,
+            'key' => $_ENV['JWT_SECRET'] ?? 'sua_chave_super_secreta',
+            'alg' => 'HS256',
         ],
         // ...
         'request' => [
@@ -47,9 +49,11 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                ['class' => 'yii\rest\UrlRule', 'controller' => 'despesas', 'pluralize' => 'true'],
-                'POST auth/signup' => 'auth/signup',
-                'POST auth/login' => 'auth/login',
+                '/' => 'site/index',
+                'api/despesas/index' => 'despesa/index',
+                'api/despesas/create' => 'despesa/create',
+                'api/despesas/<id:\d+>' => 'despesa/view',
+                'api/despesas/delete/<id:\d+>' => 'despesa/delete',
             ],
         ],
         // ...

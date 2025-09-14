@@ -3,7 +3,7 @@ namespace app\controllers;
 
 use Yii;
 use yii\web\Controller;
-use app\models\Despesas;
+use app\models\Despesa;
 use app\models\LoginForm;
 use app\models\SignupForm;
 
@@ -11,11 +11,7 @@ class SiteController extends Controller
 {
     public function actionIndex()
     {
-        if (Yii::$app->user->isGuest) {
-            return $this->redirect(['site/login']);
-        }
-        
-        $model = new Despesas();
+        $model = new Despesa();
         return $this->render('index', [
             'model' => $model,
         ]);
@@ -31,7 +27,7 @@ class SiteController extends Controller
         
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             // Gerar token JWT
-            $token = Yii::$app->jwt->generateToken(Yii::$app->user->id);
+            $token = Yii::$app->Jwt->generateToken(Yii::$app->user->id);
             
             // Armazenar token no localStorage via JavaScript
             Yii::$app->response->content = $this->renderPartial('login', [

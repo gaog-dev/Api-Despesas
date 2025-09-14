@@ -1,10 +1,9 @@
 <?php
-
 /** @var yii\web\View $this */
 /** @var string $content */
 
+use Yii;
 use app\assets\AppAsset;
-use app\widgets\Alert;
 use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
 use yii\bootstrap5\Nav;
@@ -14,7 +13,7 @@ AppAsset::register($this);
 
 $this->registerCsrfMetaTags();
 $this->registerMetaTag(['charset' => Yii::$app->charset], 'charset');
-$this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, initial-scale=1, shrink-to-fit=no']);
+$this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, initial-scale=1']);
 $this->registerMetaTag(['name' => 'description', 'content' => $this->params['meta_description'] ?? '']);
 $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_keywords'] ?? '']);
 $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii::getAlias('@web/favicon.ico')]);
@@ -23,57 +22,67 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>" class="h-100">
 <head>
-    <title><?= Html::encode($this->title) ?></title>
+    <title><?= Html::encode($this->title) ?> | Despesas Pessoais</title>
     <?php $this->head() ?>
 </head>
-<body class="d-flex flex-column h-100">
+<body class="d-flex flex-column h-100 bg-light">
 <?php $this->beginBody() ?>
 
-<header id="header">
+<header>
     <?php
     NavBar::begin([
-        'brandLabel' => 'Despesas Pessoais',
-        'brandUrl' => Yii::$app->homeUrl,
-        'options' => ['class' => 'navbar-expand-md navbar-dark bg-dark fixed-top']
+            'brandLabel' => '<i class="bi bi-wallet2"></i> Despesas Pessoais',
+            'brandUrl' => Yii::$app->homeUrl,
+            'options' => ['class' => 'navbar navbar-expand-lg navbar-dark bg-primary shadow-sm fixed-top'],
     ]);
-    echo Nav::widget([
-        'options' => ['class' => 'navbar-nav navbar-right'],
-        'items' => [
+
+    $menuItems = [
             ['label' => 'Home', 'url' => ['/site/index']],
-            Yii::$app->user->isGuest ? (
-            ['label' => 'login', 'url' => ['/site/login']]
-        ) : (
-            ''
-        ),
-            Yii::$app->user->isGuest ? (
-                ['label' => 'Signup', 'url' => ['/site/signup']]
-            ) : (
-                '<li class="nav-item">'
-                    . Html::beginForm(['/site/logout'], 'post')
-                    . Html::submitButton(
-                        'Logout (' . Yii::$app->user->identity->username . ')',
-                        ['class' => 'btn btn-link logout']
-                    )
-                    . Html::endForm()
-                    . '</li>'
-                    ),
-        ]
+    ];
+
+    if (Yii::$app->user->isGuest) {
+        $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
+        $menuItems[] = ['label' => 'Signup', 'url' => ['/site/signup']];
+    } else {
+        $menuItems[] = [
+                'label' => 'Olá, ' . Html::encode(Yii::$app->user->identity->username),
+                'items' => [
+                        ['label' => 'Minhas Despesas', 'url' => ['/despesa/index']],
+                        '<hr class="dropdown-divider">',
+                        '<li>'
+                        . Html::beginForm(['/site/logout'], 'post', ['class' => 'd-inline'])
+                        . Html::submitButton('Logout', ['class' => 'dropdown-item text-danger'])
+                        . Html::endForm()
+                        . '</li>'
+                ],
+        ];
+    }
+
+    echo Nav::widget([
+            'options' => ['class' => 'navbar-nav ms-auto'],
+            'items' => $menuItems,
+            'encodeLabels' => false,
     ]);
+
     NavBar::end();
     ?>
 </header>
 
-<div class="container">
-    <?= Breadcrumbs::widget([
-        'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
-    ]) ?>
-    <?= $content ?>
-</div>
+<main class="flex-shrink-0 mt-5 pt-4">
+    <div class="container py-4">
+        <?= Breadcrumbs::widget([
+                'links' => $this->params['breadcrumbs'] ?? [],
+                'options' => ['class' => 'breadcrumb bg-white px-3 py-2 rounded shadow-sm'],
+        ]) ?>
 
-<footer class="footer">
-    <div class="container">
-        <p class="pull-left">&copy; Despesas Pessoais <?= date('Y') ?></p>
-        <p class="pull-right"><?= Yii::powered() ?></p>
+        <?= $content ?>
+    </div>
+</main>
+
+<footer class="footer mt-auto py-3 bg-dark text-light shadow-sm">
+    <div class="container d-flex justify-content-between">
+        <span>&copy; Despesas Pessoais <?= date('Y') ?></span>
+        <span>Powered by Yii Framework</span>
     </div>
 </footer>
 

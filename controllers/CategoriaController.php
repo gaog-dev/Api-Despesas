@@ -2,7 +2,6 @@
 namespace app\controllers;
 
 use Yii;
-use app\models\Categoria;
 use yii\rest\ActiveController;
 use yii\web\Response;
 
