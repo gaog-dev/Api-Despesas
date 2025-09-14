@@ -11,33 +11,34 @@ class DashboardController extends Controller
 {
     public function actionDespesas()
     {
-        $query = Despesa::find()->orderBy(['data' => SORT_DESC]);
+        $model = new Despesa();
 
-        // filtros
-        $categoria = Yii::$app->request->get('categoria');
-        $dataInicio = Yii::$app->request->get('data_inicio');
-        $dataFim = Yii::$app->request->get('data_fim');
+        if (Yii::$app->request->isPost) {
+            $postData = Yii::$app->request->post();
 
-        if ($categoria) {
-            $query->andWhere(['categoria' => $categoria]);
-        }
-        if ($dataInicio) {
-            $query->andWhere(['>=', 'data', $dataInicio]);
-        }
-        if ($dataFim) {
-            $query->andWhere(['<=', 'data', $dataFim]);
+            // 🔥 Chama API de criação
+            $ch = curl_init(Yii::$app->urlManager->createAbsoluteUrl(['api/despesas/create']));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData['Despesa']));
+            $response = curl_exec($ch);
+            curl_close($ch);
+
+            Yii::$app->session->setFlash('success', 'Despesa adicionada com sucesso!');
+            return $this->redirect(['dashboard/despesas']);
         }
 
+        // Lista despesas direto do banco
         $dataProvider = new ActiveDataProvider([
-            'query' => $query,
+            'query' => Despesa::find()->orderBy(['data' => SORT_DESC]),
             'pagination' => ['pageSize' => 10],
         ]);
 
         return $this->render('despesas', [
+            'model' => $model,
             'dataProvider' => $dataProvider,
         ]);
     }
-
     public function actionCreate()
     {
         $model = new Despesa();
@@ -65,8 +66,10 @@ class DashboardController extends Controller
 
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
-        Yii::$app->session->setFlash('success', 'Despesa excluída com sucesso!');
+        if (($model = Despesa::findOne($id)) !== null) {
+            $model->delete();
+            Yii::$app->session->setFlash('success', 'Despesa excluída com sucesso!');
+        }
         return $this->redirect(['dashboard/despesas']);
     }
     protected function findModel($id)

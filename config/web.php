@@ -55,6 +55,7 @@ $config = [
                 # ROTAS DA API (JWT)
                 'api/despesas/index' => 'despesa/index',
                 'api/despesas/create' => 'despesa/create',
+                'api/despesas/update' => 'despesa/update',
                 'api/despesas/<id:\d+>' => 'despesa/view',
                 'api/despesas/delete/<id:\d+>' => 'despesa/delete',
 

@@ -21,9 +21,7 @@ class DespesaController extends ActiveController
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-        $behaviors['authenticator'] = [
-            'class' => \app\behaviors\JwtAuthBehavior::class,
-        ];
+        unset($behaviors['authenticator']); // 🔓 Sem JWT por enquanto
         return $behaviors;
     }
 
