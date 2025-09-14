@@ -69,7 +69,7 @@ $(document).ready(function() {
     // Carregar despesas
     function loadDespesas() {
         $.ajax({
-            url: '/despesas',
+            url: 'api/despesas',
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -78,16 +78,16 @@ $(document).ready(function() {
                 var tbody = $('#despesas-tbody');
                 tbody.empty();
                 
-                data.items.forEach(function(despesa) {
+                data.items.forEach(function(despesas) {
                     tbody.append(
                         '<tr>' +
-                        '<td>' + despesa.id + '</td>' +
-                        '<td>' + despesa.descricao + '</td>' +
-                        '<td>' + despesa.valor + '</td>' +
-                        '<td>' + despesa.data + '</td>' +
-                        '<td>' + despesa.categoria + '</td>' +
+                        '<td>' + despesas.id + '</td>' +
+                        '<td>' + despesas.descricao + '</td>' +
+                        '<td>' + despesas.valor + '</td>' +
+                        '<td>' + despesas.data + '</td>' +
+                        '<td>' + despesas.categoria + '</td>' +
                         '<td>' +
-                        '<button class="btn btn-sm btn-danger delete-btn" data-id="' + despesa.id + '">Excluir</button>' +
+                        '<button class="btn btn-sm btn-danger delete-btn" data-id="' + despesas.id + '">Excluir</button>' +
                         '</td>' +
                         '</tr>'
                     );
@@ -111,7 +111,7 @@ $(document).ready(function() {
         var formData = form.serialize();
         
         $.ajax({
-            url: '/despesas',
+            url: 'api/despesas',
             method: 'POST',
             data: formData,
             headers: {
@@ -140,7 +140,7 @@ $(document).ready(function() {
         
         if (confirm('Tem certeza que deseja excluir esta despesa?')) {
             $.ajax({
-                url: '/despesas/' + id,
+                url: 'api/despesas/' + id,
                 method: 'DELETE',
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -167,6 +167,35 @@ $('#logout-btn').on('click', function() {
         window.location.href = '/site/logout';
     }
 });
+<script>
+document.addEventListener("DOMContentLoaded", function ()
+{
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        window.location.href = "/site/login";
+        return;
+    }
+
+    fetch("/api/despesas", {
+        headers: {
+            "Authorization": "Bearer " + token
+        }
+    })
+    .then(response => {
+        if (response.status === 401) {
+            localStorage.removeItem("token");
+            window.location.href = "/site/login";
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Despesas:", data);
+        // TODO: renderizar lista no HTML
+    })
+    .catch(err => console.error("Erro ao carregar despesas", err));
+})
+</script>
 JS
 );
 ?>

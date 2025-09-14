@@ -3,7 +3,7 @@ namespace app\controllers;
 
 use Yii;
 use yii\web\Controller;
-use app\models\Despesa;
+use app\models\Despesas;
 use app\models\LoginForm;
 use app\models\SignupForm;
 
@@ -15,7 +15,7 @@ class SiteController extends Controller
             return $this->redirect(['site/login']);
         }
         
-        $model = new Despesa();
+        $model = new Despesas();
         return $this->render('index', [
             'model' => $model,
         ]);
@@ -69,15 +69,14 @@ JS;
     public function actionLogout()
     {
         Yii::$app->user->logout();
-        
-        Yii::$app->response->content = $this->renderPartial('logout');
-        
+
+    // Limpa o token no navegador
         $script = <<<JS
-localStorage.removeItem('token');
-window.location.href = '/site/login';
-JS;
-        
-        $this->view->registerJs($script);
-        return;
+        localStorage.removeItem('token');
+        window.location.href = '/site/login'; // ou /site/signup
+    JS;
+
+        Yii::$app->response->format = yii\web\Response::FORMAT_HTML;
+        return "<script>{$script}</script>";
     }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use yii;
 use yii\base\Model;
 
 class LoginForm extends Model
@@ -15,7 +16,6 @@ class LoginForm extends Model
     {
         return [
             [['username', 'password'], 'required'],
-            ['rememberMe', 'boolean'],
             ['password', 'validatePassword'],
         ];
     }
@@ -33,15 +33,15 @@ class LoginForm extends Model
     public function login()
     {
         if ($this->validate()) {
-            return $this->getUser();
+            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
         }
         
-        return null;
+        return false;
     }
 
     protected function getUser()
     {
-        if ($this->_user === null) {
+        if ($this->_user === false) {
             $this->_user = User::findByUsername($this->username);
         }
         

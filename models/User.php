@@ -1,7 +1,7 @@
 <?php
 namespace app\models;
 
-use yii\base\NotSupportedException;
+use Yii;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
@@ -33,7 +33,7 @@ class User extends ActiveRecord implements IdentityInterface
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        $decoded = \Yii::$app->jwt->validateToken($token);
+        $decoded = Yii::$app->jwt->validateToken($token);
         if ($decoded) {
             return static::findOne(['id' => $decoded->userId]);
         }
@@ -57,17 +57,17 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function validatePassword($password)
     {
-        return \Yii::$app->security->validatePassword($password, $this->password_hash);
+        return Yii::$app->security->validatePassword($password, $this->password_hash);
     }
 
     public function setPassword($password)
     {
-        $this->password_hash = \Yii::$app->security->generatePasswordHash($password);
+        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
     }
 
     public function generateAuthKey()
     {
-        $this->auth_key = \Yii::$app->security->generateRandomString();
+        $this->auth_key = Yii::$app->security->generateRandomString();
     }
 
     public function getDespesas()

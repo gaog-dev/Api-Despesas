@@ -9,7 +9,7 @@ use app\services\DespesaService;
 
 class DespesaController extends ActiveController
 {
-    public $modelClass = 'app\models\Despesa';
+    public $modelClass = 'app\models\Despesas';
     
     private $despesaService;
     
@@ -24,8 +24,16 @@ class DespesaController extends ActiveController
     {
         $behaviors = parent::behaviors();
         $behaviors['contentNegotiator']['formats']['application/json'] = Response::FORMAT_JSON;
-        $behaviors['authenticator'] = [
-            'class' => JwtAuthBehavior::class,
+        // Controle de acesso com sessão
+        $behaviors['access'] = [
+            'class' => AccessControl::class,
+            'only' => ['index', 'view', 'create', 'update', 'delete'],
+            'rules' => [
+                [
+                    'allow' => true,
+                    'roles' => ['@'], // apenas usuários logados na sessão
+                ],
+            ],
         ];
         return $behaviors;
     }
@@ -51,38 +59,38 @@ class DespesaController extends ActiveController
     
     public function actionView($id)
     {
-        $despesa = $this->despesaService->getDespesaById($id);
+        $despesas = $this->despesaService->getDespesaById($id);
         
-        if (!$despesa) {
-            throw new \yii\web\NotFoundHttpException('Despesa not found.');
+        if (!$despesas) {
+            throw new yii\web\NotFoundHttpException('Despesa not found.');
         }
         
-        return $despesa;
+        return $despesas;
     }
     
     public function actionCreate()
     {
         $data = Yii::$app->request->post();
-        $despesa = $this->despesaService->createDespesa($data);
+        $despesas = $this->despesaService->createDespesa($data);
         
-        if ($despesa) {
-            return $despesa;
+        if ($despesas) {
+            return $despesas;
         } else {
             Yii::$app->response->statusCode = 422;
-            return ['errors' => $despesa->errors];
+            return ['errors' => $despesas->errors];
         }
     }
     
     public function actionUpdate($id)
     {
         $data = Yii::$app->request->post();
-        $despesa = $this->despesaService->updateDespesa($id, $data);
+        $despesas = $this->despesaService->updateDespesa($id, $data);
         
-        if ($despesa) {
-            return $despesa;
+        if ($despesas) {
+            return $despesas;
         } else {
             Yii::$app->response->statusCode = 422;
-            return ['errors' => $despesa->errors];
+            return ['errors' => $despesas->errors];
         }
     }
     
@@ -92,7 +100,7 @@ class DespesaController extends ActiveController
             Yii::$app->response->statusCode = 204;
             return;
         } else {
-            throw new \yii\web\NotFoundHttpException('Despesa not found.');
+            throw new yii\web\NotFoundHttpException('Despesa not found.');
         }
     }
 }

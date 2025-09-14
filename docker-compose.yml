@@ -12,22 +12,28 @@ services:
     depends_on:
       - db
     environment:
-      DB_HOST: db
-      DB_DATABASE: api_despesas
-      DB_USERNAME: root
-      DB_PASSWORD: rootpass
+      APP_ENV: ${APP_ENV}
+      APP_DEBUG: ${APP_DEBUG}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      COOKIE_VALIDATION_KEY: ${COOKIE_VALIDATION_KEY}
+      DB_DSN: ${DB_DSN}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+
     networks:
       - api-despesas-network
 
   db:
-    image: mysql:5.7
+    image: mysql:8.0
     container_name: api-despesas-db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: api_despesas
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: admin123
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "33066:3306"
     volumes:

@@ -13,8 +13,8 @@ class JwtComponent extends Component
     public function generateToken($userId)
     {
         $payload = [
-            'iss' => 'http://yourdomain.com', // Emissor
-            'aud' => 'http://yourdomain.com', // Audiência
+            'iss' => 'http://localhost:8080/site/login', // Emissor
+            'aud' => 'http://localhost:8080/', // Audiência
             'iat' => time(), // Timestamp de emissão
             'exp' => time() + 3600, // Expiração (1 hora)
             'userId' => $userId
