@@ -1,11 +1,6 @@
 <?php
 use yii\helpers\Html;
-use yii\widgets\ActiveForm;
 use yii\grid\GridView;
-
-/** @var yii\web\View $this */
-/** @var app\models\Despesa $model */
-/** @var yii\data\ActiveDataProvider $dataProvider */
 
 $this->title = 'Minhas Despesas';
 ?>
@@ -13,7 +8,7 @@ $this->title = 'Minhas Despesas';
 <div class="container mt-4">
     <h3 class="mb-3"><?= Html::encode($this->title) ?></h3>
 
-    <!-- ✅ Flash messages -->
+    <!-- Flash messages -->
     <?php foreach (Yii::$app->session->getAllFlashes() as $type => $message): ?>
         <div class="alert alert-<?= $type ?> alert-dismissible fade show" role="alert">
             <?= $message ?>
@@ -21,53 +16,66 @@ $this->title = 'Minhas Despesas';
         </div>
     <?php endforeach; ?>
 
-    <!-- Formulário -->
+    <!-- Formulário para adicionar despesa via API -->
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-primary text-white">Adicionar Nova Despesa</div>
         <div class="card-body">
-            <?php $form = ActiveForm::begin([
-                    'action' => ['dashboard/despesas'], // ✅ envia para DashboardController
-                    'method' => 'post',
-            ]); ?>
-
-            <div class="row">
-                <div class="col-md-4">
-                    <?= $form->field($model, 'descricao')
-                            ->textInput(['placeholder' => 'Ex: Supermercado'])
-                            ->label('Descrição') ?>
+            <form id="despesa-form">
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <input type="text" name="descricao" class="form-control" placeholder="Descrição" required>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="number" step="0.01" name="valor" class="form-control" placeholder="Valor (R$)" required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <input type="date" name="data" class="form-control" required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <select name="categoria" class="form-select" required>
+                            <option value="">Categoria</option>
+                            <option value="alimentação">Alimentação</option>
+                            <option value="transporte">Transporte</option>
+                            <option value="lazer">Lazer</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <?= $form->field($model, 'valor')
-                            ->input('number', ['step' => '0.01', 'placeholder' => 'R$'])
-                            ->label('Valor (R$)') ?>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success">Adicionar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-dark text-white">Filtros</div>
+        <div class="card-body">
+            <form method="get" class="row g-2">
+                <div class="col-md-3">
+                    <select name="categoria" class="form-select">
+                        <option value="">Todas categorias</option>
+                        <option value="alimentação">Alimentação</option>
+                        <option value="transporte">Transporte</option>
+                        <option value="lazer">Lazer</option>
+                    </select>
                 </div>
                 <div class="col-md-3">
-                    <?= $form->field($model, 'data')
-                            ->input('date')
-                            ->label('Data') ?>
+                    <input type="date" name="data_inicio" class="form-control" placeholder="Data inicial">
                 </div>
                 <div class="col-md-3">
-                    <?= $form->field($model, 'categoria')
-                            ->dropDownList([
-                                    'alimentação' => 'Alimentação',
-                                    'transporte' => 'Transporte',
-                                    'lazer' => 'Lazer',
-                            ], ['prompt' => 'Selecione uma categoria'])
-                            ->label('Categoria') ?>
+                    <input type="date" name="data_fim" class="form-control" placeholder="Data final">
                 </div>
-            </div>
-
-            <div class="text-end">
-                <?= Html::submitButton('Adicionar', ['class' => 'btn btn-success']) ?>
-            </div>
-
-            <?php ActiveForm::end(); ?>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- Lista -->
     <div class="card shadow-sm">
-        <div class="card-header bg-dark text-white">Lista de Despesas</div>
+        <div class="card-header bg-secondary text-white">Lista de Despesas</div>
         <div class="card-body">
             <?= GridView::widget([
                     'dataProvider' => $dataProvider,
@@ -85,17 +93,16 @@ $this->title = 'Minhas Despesas';
                             'categoria',
                             [
                                     'class' => 'yii\grid\ActionColumn',
+                                    'header' => 'Ações',
                                     'template' => '{update} {delete}',
                                     'buttons' => [
                                             'update' => fn($url, $model) =>
-                                            Html::a('<i class="bi bi-pencil"></i>', ['dashboard/update', 'id' => $model->id], [
+                                            Html::a('<i class="bi bi-pencil"></i> Editar', ['dashboard/update', 'id' => $model->id], [
                                                     'class' => 'btn btn-sm btn-warning',
-                                                    'title' => 'Editar',
                                             ]),
                                             'delete' => fn($url, $model) =>
-                                            Html::a('<i class="bi bi-trash"></i>', ['dashboard/delete', 'id' => $model->id], [
+                                            Html::a('<i class="bi bi-trash"></i> Excluir', ['dashboard/delete', 'id' => $model->id], [
                                                     'class' => 'btn btn-sm btn-danger',
-                                                    'title' => 'Excluir',
                                                     'data' => [
                                                             'confirm' => 'Tem certeza que deseja excluir esta despesa?',
                                                             'method' => 'post',
@@ -108,3 +115,28 @@ $this->title = 'Minhas Despesas';
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById('despesa-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+        const response = await fetch('/api/despesas/create', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-Token': csrfToken,
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            window.location.href = '/dashboard/despesas';
+        } else {
+            alert('Erro ao salvar despesa: ' + JSON.stringify(data.errors || data));
+        }
+    });
+</script>

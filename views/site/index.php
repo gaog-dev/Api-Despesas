@@ -1,69 +1,65 @@
 <?php
 use yii\helpers\Html;
 
-$this->title = 'Gerenciar Despesas';
+$this->title = 'Despesas Pessoais API';
 ?>
 
-<h2>Adicionar Nova Despesa</h2>
+<div class="bg-light py-5">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold text-primary">
+            <?= Html::encode($this->title) ?>
+        </h1>
+        <p class="lead text-muted mt-3">
+            Gerencie suas despesas de forma simples e rápida.
+            Uma aplicação <strong>API RESTful</strong> moderna, integrada ao Yii2.
+        </p>
 
-<form id="despesa-form">
-    <div class="form-group">
-        <label>Descrição</label>
-        <input type="text" name="descricao" class="form-control" required>
+        <div class="mt-4">
+            <?= Html::a('Minhas Despesas', ['/dashboard/despesas'], ['class' => 'btn btn-lg btn-success me-2']) ?>
+        </div>
     </div>
+</div>
 
-    <div class="form-group">
-        <label>Valor</label>
-        <input type="number" step="0.01" name="valor" class="form-control" required>
+<!-- Features -->
+<div id="features" class="container py-5">
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <i class="bi bi-wallet2 text-primary display-5"></i>
+                    <h5 class="card-title mt-3">Controle Financeiro</h5>
+                    <p class="card-text text-muted">
+                        Acompanhe todas as suas despesas em um só lugar.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <i class="bi bi-graph-up text-success display-5"></i>
+                    <h5 class="card-title mt-3">Relatórios e Filtros</h5>
+                    <p class="card-text text-muted">
+                        Visualize gastos por categoria e períodos específicos.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <i class="bi bi-shield-lock text-danger display-5"></i>
+                    <h5 class="card-title mt-3">Segurança JWT</h5>
+                    <p class="card-text text-muted">
+                        API protegida por autenticação segura com tokens JWT.
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="form-group">
-        <label>Data</label>
-        <input type="date" name="data" class="form-control" required>
-    </div>
-
-    <div class="form-group">
-        <label>Categoria</label>
-        <select name="categoria" class="form-control" required>
-            <option value="">Selecione uma categoria</option>
-            <option value="alimentação">Alimentação</option>
-            <option value="transporte">Transporte</option>
-            <option value="lazer">Lazer</option>
-        </select>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Salvar Despesa</button>
-</form>
-
-<hr>
-
-<div id="mensagem"></div>
-
-<script>
-    document.getElementById('despesa-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        const formData = new FormData(this);
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-
-        const response = await fetch('/dashboard/despesas', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-Token': csrfToken,
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            document.getElementById('mensagem').innerHTML =
-                '<div class="alert alert-success">Despesa salva com sucesso!</div>';
-            this.reset();
-        } else {
-            document.getElementById('mensagem').innerHTML =
-                '<div class="alert alert-danger">Erro: ' + JSON.stringify(data.errors || data) + '</div>';
-        }
-    });
-</script>
+<!-- Call to Action -->
+<div class="bg-primary text-white p

@@ -5,41 +5,58 @@ use Yii;
 use yii\web\Controller;
 use app\models\Despesa;
 use yii\data\ActiveDataProvider;
+use yii\web\NotFoundHttpException;
 
 class DashboardController extends Controller
 {
     public function actionDespesas()
     {
-        $model = new Despesa();
+        $query = Despesa::find()->orderBy(['data' => SORT_DESC]);
 
-        if ($model->load(Yii::$app->request->post())) {
-            $model->user_id = Yii::$app->user->id;
-            if ($model->save()) {
-                Yii::$app->session->setFlash('success', 'Despesa adicionada com sucesso!');
-                return $this->redirect(['dashboard/despesas']);
-            } else {
-                Yii::$app->session->setFlash('error', 'Erro ao salvar a despesa.');
-            }
+        // filtros
+        $categoria = Yii::$app->request->get('categoria');
+        $dataInicio = Yii::$app->request->get('data_inicio');
+        $dataFim = Yii::$app->request->get('data_fim');
+
+        if ($categoria) {
+            $query->andWhere(['categoria' => $categoria]);
+        }
+        if ($dataInicio) {
+            $query->andWhere(['>=', 'data', $dataInicio]);
+        }
+        if ($dataFim) {
+            $query->andWhere(['<=', 'data', $dataFim]);
         }
 
         $dataProvider = new ActiveDataProvider([
-            'query' => Despesa::find()->where(['user_id' => Yii::$app->user->id])->orderBy(['data' => SORT_DESC]),
+            'query' => $query,
+            'pagination' => ['pageSize' => 10],
         ]);
 
         return $this->render('despesas', [
-            'model' => $model,
             'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    public function actionCreate()
+    {
+        $model = new Despesa();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Despesa adicionada com sucesso!');
+            return $this->redirect(['dashboard/despesas']);
+        }
+
+        return $this->render('create', [
+            'model' => $model,
         ]);
     }
     public function actionUpdate($id)
     {
-        $model = Despesa::findOne(['id' => $id, 'user_id' => Yii::$app->user->id]);
-        if (!$model) {
-            throw new \yii\web\NotFoundHttpException("Despesa não encontrada.");
-        }
+        $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash('success', 'Despesa atualizada!');
+            Yii::$app->session->setFlash('success', 'Despesa atualizada com sucesso!');
             return $this->redirect(['dashboard/despesas']);
         }
 
@@ -48,13 +65,15 @@ class DashboardController extends Controller
 
     public function actionDelete($id)
     {
-        $model = Despesa::findOne(['id' => $id, 'user_id' => Yii::$app->user->id]);
-        if ($model) {
-            $model->delete();
-            Yii::$app->session->setFlash('success', 'Despesa excluída!');
-        } else {
-            Yii::$app->session->setFlash('error', 'Despesa não encontrada.');
-        }
+        $this->findModel($id)->delete();
+        Yii::$app->session->setFlash('success', 'Despesa excluída com sucesso!');
         return $this->redirect(['dashboard/despesas']);
+    }
+    protected function findModel($id)
+    {
+        if (($model = Despesa::findOne($id)) !== null) {
+            return $model;
+        }
+        throw new NotFoundHttpException('Despesa não encontrada.');
     }
 }
