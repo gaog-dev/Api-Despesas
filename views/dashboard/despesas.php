@@ -124,7 +124,7 @@ $this->title = 'Minhas Despesas';
         const formData = new FormData(this);
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
-        const response = await fetch('/api/despesa/create', {
+        const response = await fetch('/dashboard/despesas/create', {
             method: 'POST',
             headers: {
                 'X-CSRF-Token': csrfToken,

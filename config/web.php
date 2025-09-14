@@ -61,7 +61,7 @@ $config = [
 
                 # ROTAS DO DASHBOARD (Frontend web)
                 'dashboard/despesas/index' => 'dashboard/despesas',
-                'dashboard/despesas/create' => 'dashboard/despesas',
+                'dashboard/despesas/create' => 'dashboard/despesas/create',
                 'dashboard/despesas/update/<id:\d+>' => 'dashboard/update',
                 'dashboard/despesas/delete/<id:\d+>' => 'dashboard/delete',
             ],
