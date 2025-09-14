@@ -49,11 +49,19 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                # ROTAS DO INDEX (Frontend web)
                 '/' => 'site/index',
+
+                # ROTAS DA API (JWT)
                 'api/despesas/index' => 'despesa/index',
                 'api/despesas/create' => 'despesa/create',
                 'api/despesas/<id:\d+>' => 'despesa/view',
                 'api/despesas/delete/<id:\d+>' => 'despesa/delete',
+
+                # ROTAS DO DASHBOARD (Frontend web)
+                'dashboard/despesas' => 'dashboard/despesas',
+                'dashboard/update/<id:\d+>' => 'dashboard/update',
+                'dashboard/delete/<id:\d+>' => 'dashboard/delete',
             ],
         ],
         // ...

@@ -3,9 +3,7 @@ namespace app\controllers;
 
 use Yii;
 use yii\rest\ActiveController;
-use yii\web\Response;
 use yii\web\NotFoundHttpException;
-use yii\filters\AccessControl;
 use app\services\DespesaService;
 use app\models\Despesa;
 class DespesaController extends ActiveController

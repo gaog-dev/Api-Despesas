@@ -19,74 +19,74 @@ $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_k
 $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii::getAlias('@web/favicon.ico')]);
 ?>
 <?php $this->beginPage() ?>
-<!DOCTYPE html>
-<html lang="<?= Yii::$app->language ?>" class="h-100">
-<head>
-    <title><?= Html::encode($this->title) ?> | Despesas Pessoais</title>
-    <?php $this->head() ?>
-</head>
-<body class="d-flex flex-column h-100 bg-light">
-<?php $this->beginBody() ?>
+    <!DOCTYPE html>
+    <html lang="<?= Yii::$app->language ?>">
+    <head>
+        <meta charset="<?= Yii::$app->charset ?>">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <?= Html::csrfMetaTags() ?> <!-- ✅ Garante CSRF em todos os POSTs -->
+        <title><?= Html::encode($this->title) ?></title>
+        <?php $this->head() ?>
+    </head>
+    <body>
+    <?php $this->beginBody() ?>
 
-<header>
-    <?php
-    NavBar::begin([
-            'brandLabel' => '<i class="bi bi-wallet2"></i> Despesas Pessoais',
-            'brandUrl' => Yii::$app->homeUrl,
-            'options' => ['class' => 'navbar navbar-expand-lg navbar-dark bg-primary shadow-sm fixed-top'],
-    ]);
+    <div class="wrap">
+        <?php
+        NavBar::begin([
+                'brandLabel' => '💰 Despesas Pessoais',
+                'brandUrl' => Yii::$app->homeUrl,
+                'options' => ['class' => 'navbar navbar-expand-lg navbar-dark bg-dark'],
+        ]);
 
-    $menuItems = [
-            ['label' => 'Home', 'url' => ['/site/index']],
-    ];
-
-    if (Yii::$app->user->isGuest) {
-        $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
-        $menuItems[] = ['label' => 'Signup', 'url' => ['/site/signup']];
-    } else {
-        $menuItems[] = [
-                'label' => 'Olá, ' . Html::encode(Yii::$app->user->identity->username),
+        echo Nav::widget([
+                'options' => ['class' => 'navbar-nav ms-auto'],
                 'items' => [
-                        ['label' => 'Minhas Despesas', 'url' => ['/despesa/index']],
-                        '<hr class="dropdown-divider">',
-                        '<li>'
-                        . Html::beginForm(['/site/logout'], 'post', ['class' => 'd-inline'])
-                        . Html::submitButton('Logout', ['class' => 'dropdown-item text-danger'])
-                        . Html::endForm()
-                        . '</li>'
+                        ['label' => 'Início', 'url' => ['/site/index']],
+                        ['label' => 'Minhas Despesas', 'url' => ['/dashboard/despesas']],
+                        Yii::$app->user->isGuest
+                                ? ['label' => 'Login', 'url' => ['/site/login']]
+                                : '<li>'
+                                . Html::beginForm(['/site/logout'], 'post')
+                                . Html::submitButton(
+                                        'Sair (' . Yii::$app->user->identity->username . ')',
+                                        ['class' => 'btn btn-link logout text-white']
+                                )
+                                . Html::endForm()
+                                . '</li>',
                 ],
-        ];
-    }
+        ]);
 
-    echo Nav::widget([
-            'options' => ['class' => 'navbar-nav ms-auto'],
-            'items' => $menuItems,
-            'encodeLabels' => false,
-    ]);
+        NavBar::end();
+        ?>
 
-    NavBar::end();
-    ?>
-</header>
+        <div class="container mt-4">
+            <?= Breadcrumbs::widget([
+                    'links' => $this->params['breadcrumbs'] ?? [],
+            ]) ?>
 
-<main class="flex-shrink-0 mt-5 pt-4">
-    <div class="container py-4">
-        <?= Breadcrumbs::widget([
-                'links' => $this->params['breadcrumbs'] ?? [],
-                'options' => ['class' => 'breadcrumb bg-white px-3 py-2 rounded shadow-sm'],
-        ]) ?>
+            <!-- ✅ Exibir flash messages do controller -->
+            <?php foreach (Yii::$app->session->getAllFlashes() as $type => $message): ?>
+                <div class="alert alert-<?= $type ?> alert-dismissible fade show" role="alert">
+                    <?= $message ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                </div>
+            <?php endforeach; ?>
 
-        <?= $content ?>
+            <?= $content ?>
+        </div>
     </div>
-</main>
 
-<footer class="footer mt-auto py-3 bg-dark text-light shadow-sm">
-    <div class="container d-flex justify-content-between">
-        <span>&copy; Despesas Pessoais <?= date('Y') ?></span>
-        <span>Powered by Yii Framework</span>
-    </div>
-</footer>
+    <footer class="footer bg-light text-center py-3 mt-auto">
+        <div class="container">
+            <p class="text-muted mb-0">
+                &copy; <?= Html::encode(Yii::$app->name) ?> <?= date('Y') ?>
+            </p>
+        </div>
+    </footer>
 
-<?php $this->endBody() ?>
-</body>
-</html>
+    <?php $this->endBody() ?>
+    </body>
+    </html>
 <?php $this->endPage() ?>

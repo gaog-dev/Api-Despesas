@@ -44,12 +44,13 @@ $this->title = 'Gerenciar Despesas';
         e.preventDefault();
 
         const formData = new FormData(this);
-        const token = localStorage.getItem('token'); // token JWT salvo no login
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
-        const response = await fetch('/api/despesas/create', {
+        const response = await fetch('/dashboard/despesas', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`,
+                'X-CSRF-Token': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: formData
         });
