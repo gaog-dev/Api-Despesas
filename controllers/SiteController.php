@@ -27,17 +27,23 @@ class SiteController extends Controller
         
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             // Gerar token JWT
-            $token = Yii::$app->Jwt->generateToken(Yii::$app->user->id);
-            
-            // Armazenar token no localStorage via JavaScript
-            Yii::$app->response->content = $this->renderPartial('login', [
+            $token = Yii::$app->jwt->generateToken(Yii::$app->user->id);
+
+            // Renderizar a view com o token
+            return $this->render('login', [
+                'model' => $model,
+                'token' => $token,
+            ]);
+        }
+            return $this->render('login', [
                 'model' => $model,
             ]);
+
             
             $script = <<<JS
-localStorage.setItem('token', '$token');
-window.location.href = '/';
-JS;
+        localStorage.setItem('token', '$token');
+        window.location.href = '/';
+        JS;{
             
             $this->view->registerJs($script);
             return;

@@ -1,49 +1,50 @@
-services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: api-despesas-app
-    restart: unless-stopped
-    volumes:
-      - .:/var/www/html
-    ports:
-      - "8080:80"
-    depends_on:
-      - db
-    environment:
-      APP_ENV: ${APP_ENV}
-      APP_DEBUG: ${APP_DEBUG}
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
-      COOKIE_VALIDATION_KEY: ${COOKIE_VALIDATION_KEY}
-      DB_DSN: ${DB_DSN}
-      DB_DATABASE: ${DB_DATABASE}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
+  services:
+    app:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      container_name: api-despesas-app
+      restart: unless-stopped
+      volumes:
+        - .:/var/www/html
+      ports:
+        - "8080:80"
+      depends_on:
+        - db
+      environment:
+        APP_ENV: ${APP_ENV}
+        APP_DEBUG: ${APP_DEBUG}
+        DB_HOST: ${DB_HOST}
+        DB_PORT: ${DB_PORT}
+        COOKIE_VALIDATION_KEY: ${COOKIE_VALIDATION_KEY}
+        DB_DATABASE: ${DB_DATABASE}
+        DB_USERNAME: ${DB_USERNAME}
+        DB_PASSWORD: ${DB_PASSWORD}
+        command: sh -c "php yii migrate --interactive=0"
+      networks:
+        - api-despesas-network
 
-    networks:
-      - api-despesas-network
+    db:
+      image: mysql:8.0
+      container_name: api-despesas-db
+      restart: unless-stopped
+      command: --default-authentication-plugin=mysql_native_password
+      environment:
+        MYSQL_DATABASE: ${MYSQL_DATABASE}
+        MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+        MYSQL_USER: ${MYSQL_USER}
+        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      ports:
+        - "3306:3306"
+      volumes:
+        - dbdata:/var/lib/mysql
+        - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      networks:
+        - api-despesas-network
 
-  db:
-    image: mysql:8.0
-    container_name: api-despesas-db
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "33066:3306"
-    volumes:
-      - dbdata:/var/lib/mysql
-    networks:
-      - api-despesas-network
+  volumes:
+    dbdata:
 
-volumes:
-  dbdata:
-
-networks:
-  api-despesas-network:
-    driver: bridge
+  networks:
+    api-despesas-network:
+      driver: bridge

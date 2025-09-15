@@ -4,6 +4,7 @@ namespace app\controllers;
 use Yii;
 use yii\rest\ActiveController;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 use app\services\DespesaService;
 use app\models\Despesa;
 
@@ -18,11 +19,10 @@ class DespesaController extends ActiveController
         $this->despesaService = new DespesaService();
     }
 
-
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-        unset($behaviors['authenticator']); // 🔓 Sem JWT por enquanto
+        $behaviors['contentNegotiator']['formats']['application/json'] = Response::FORMAT_JSON;
         return $behaviors;
     }
 
@@ -35,69 +35,121 @@ class DespesaController extends ActiveController
 
     public function actionIndex()
     {
+        // Verificar se o usuário está logado
         if (Yii::$app->user->isGuest) {
-            Yii::$app->response->statusCode = 401;
-            return ['status' => 'error', 'message' => 'Não autenticado'];
+            return ['success' => false, 'message' => 'Usuário não está logado'];
+        }
+        $query = Despesa::find()->orderBy(['data' => SORT_DESC]);
+
+        // Aplicar filtros se existirem
+        if (Yii::$app->request->get('categoria')) {
+            $query->andFilterWhere(['categoria' => Yii::$app->request->get('categoria')]);
+        }
+        if (Yii::$app->request->get('data_inicio')) {
+            $query->andFilterWhere(['>=', 'data', Yii::$app->request->get('data_inicio')]);
+        }
+        if (Yii::$app->request->get('data_fim')) {
+            $query->andFilterWhere(['<=', 'data', Yii::$app->request->get('data_fim')]);
         }
 
-        $despesas = Despesa::find()
-            ->where(['user_id' => Yii::$app->user->id])
-            ->orderBy(['data' => SORT_DESC])
-            ->all();
-
-        return ['status' => 'success', 'data' => $despesas];
+            return $query->all();
     }
     
     public function actionView($id)
     {
-        $despesa = $this->despesaService->getDespesaById($id);
-        
-        if (!$despesa) {
-            throw new yii\web\NotFoundHttpException('Despesa not found.');
+        // Verificar se o usuário está logado
+        if (Yii::$app->user->isGuest) {
+            return ['success' => false, 'message' => 'Usuário não está logado'];
         }
-        
-        return $despesa;
+
+        $model = Despesa::findOne(['id' => $id, 'user_id' => Yii::$app->user->id]);
+        if (!$model) {
+            throw new yii\web\NotFoundHttpException('Despesa não encontrada');
+        }
+        return $model;
     }
     
     public function actionCreate()
     {
+// Verificar se o usuário está logado
+        if (Yii::$app->user->isGuest) {
+            return ['success' => false, 'message' => 'Usuário não está logado'];
+        }
+
         $model = new Despesa();
-        $model->load(Yii::$app->request->post(), '');
-        // atribui automaticamente o usuário logado
-        if (!Yii::$app->user->isGuest) {
-            $model->user_id = Yii::$app->user->id;
+
+        // Obter os dados do corpo da requisição JSON
+        $rawData = Yii::$app->request->getRawBody();
+        $postData = json_decode($rawData, true);
+
+        if ($postData) {
+            $model->descricao = $postData['descricao'] ?? null;
+            $model->valor = $postData['valor'] ?? null;
+            $model->data = $postData['data'] ?? null;
+            $model->categoria = $postData['categoria'] ?? null;
+        } else {
+            // Tentar carregar via POST normal (fallback)
+            $model->load(Yii::$app->request->post(), '');
         }
+
+        $model->user_id = Yii::$app->user->id;
+
         if ($model->save()) {
-            return ['status' => 'success', 'data' => $model];
+            return ['success' => true, 'message' => 'Despesa adicionada com sucesso!', 'data' => $model];
+        } else {
+            return ['success' => false, 'errors' => $model->errors];
         }
-        Yii::$app->response->statusCode = 422;
-        return ['status' => 'error', 'errors' => $model->errors];
     }
     
     public function actionUpdate($id)
     {
-        $model = Despesa::findOne($id);
-        if (!$model) {
-            throw new NotFoundHttpException("Despesa não encontrada");
+        // Verificar se o usuário está logado
+        if (Yii::$app->user->isGuest) {
+            return ['success' => false, 'message' => 'Usuário não está logado'];
         }
 
-        $model->load(Yii::$app->request->post(), '');
-        if ($model->save()) {
-            return ['status' => 'success', 'data' => $model];
+        $model = Despesa::findOne(['id' => $id, 'user_id' => Yii::$app->user->id]);
+        if (!$model) {
+            return ['success' => false, 'message' => 'Despesa não encontrada'];
         }
-        return ['status' => 'error', 'errors' => $model->errors];
+
+        // Obter os dados do corpo da requisição JSON
+        $rawData = Yii::$app->request->getRawBody();
+        $postData = json_decode($rawData, true);
+
+        if ($postData) {
+            $model->descricao = $postData['descricao'] ?? $model->descricao;
+            $model->valor = $postData['valor'] ?? $model->valor;
+            $model->data = $postData['data'] ?? $model->data;
+            $model->categoria = $postData['categoria'] ?? $model->categoria;
+        } else {
+            // Tentar carregar via POST normal (fallback)
+            $model->load(Yii::$app->request->post(), '');
+        }
+
+        if ($model->save()) {
+            return ['success' => true, 'message' => 'Despesa atualizada com sucesso!', 'data' => $model];
+        } else {
+            return ['success' => false, 'errors' => $model->errors];
+        }
     }
     
     public function actionDelete($id)
     {
-        $model = Despesa::findOne($id);
+        // Verificar se o usuário está logado
+        if (Yii::$app->user->isGuest) {
+            return ['success' => false, 'message' => 'Usuário não está logado'];
+        }
+
+        $model = Despesa::findOne(['id' => $id, 'user_id' => Yii::$app->user->id]);
         if (!$model) {
-            throw new NotFoundHttpException("Despesa não encontrada");
+            return ['success' => false, 'message' => 'Despesa não encontrada'];
         }
 
         if ($model->delete()) {
-            return ['status' => 'success', 'message' => 'Despesa removida'];
+            return ['success' => true, 'message' => 'Despesa excluída com sucesso!'];
+        } else {
+            return ['success' => false, 'message' => 'Erro ao excluir despesa'];
         }
-        return ['status' => 'error', 'message' => 'Erro ao remover'];
     }
 }

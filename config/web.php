@@ -7,7 +7,9 @@ $config = [
     'id' => 'basic',
     'name' => 'Despesas Pessoais',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log'],
+    'bootstrap' => ['log', function() {
+    Yii::info('Módulos carregados: ' . implode(', ', array_keys(Yii::$app->modules)), 'api');
+}],
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
@@ -26,7 +28,7 @@ $config = [
     ],
         // ...
         'jwt' => [
-            'class' => \app\components\JwtComponent::class,
+            'class' => '\app\components\JwtComponent',
             'key' => $_ENV['JWT_SECRET'] ?? 'sua_chave_super_secreta',
             'alg' => 'HS256',
         ],
@@ -53,17 +55,17 @@ $config = [
                 '/' => 'site/index',
 
                 # ROTAS DA API (JWT)
-                'api/despesas/index' => 'despesa/index',
+                'api/despesas' => 'despesa/index',
                 'api/despesas/create' => 'despesa/create',
-                'api/despesas/update' => 'despesa/update',
                 'api/despesas/<id:\d+>' => 'despesa/view',
+                'api/despesas/update/<id:\d+>' => 'despesa/update',
                 'api/despesas/delete/<id:\d+>' => 'despesa/delete',
 
                 # ROTAS DO DASHBOARD (Frontend web)
-                'dashboard/despesas/index' => 'dashboard/despesas',
-                'dashboard/despesas/create' => 'dashboard/despesas/create',
-                'dashboard/despesas/update/<id:\d+>' => 'dashboard/update',
-                'dashboard/despesas/delete/<id:\d+>' => 'dashboard/delete',
+                'dashboard/despesas' => 'dashboard/despesas',
+                'dashboard/create' => 'dashboard/create',
+                'dashboard/update/<id:\d+>' => 'dashboard/update',
+                'dashboard/delete/<id:\d+>' => 'dashboard/delete',
             ],
         ],
         // ...

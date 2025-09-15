@@ -32,3 +32,10 @@ $this->title = 'Login';
 
     <p>Não tem uma conta? <a href="/site/signup">Registre-se</a></p>
 </div>
+
+<?php if (isset($token)): ?>
+    <script>
+        localStorage.setItem('token', '<?= $token ?>');
+        window.location.href = '/';
+    </script>
+<?php endif; ?>

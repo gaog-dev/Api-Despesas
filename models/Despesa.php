@@ -6,6 +6,10 @@ use yii\behaviors\TimestampBehavior;
 
 class Despesa extends ActiveRecord
 {
+    public static function tableName()
+    {
+        return 'despesas';
+    }
 
     public function rules()
     {

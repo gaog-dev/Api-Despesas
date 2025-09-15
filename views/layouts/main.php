@@ -28,6 +28,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
         <?= Html::csrfMetaTags() ?> <!-- ✅ Garante CSRF em todos os POSTs -->
         <title><?= Html::encode($this->title) ?></title>
         <?php $this->head() ?>
+        <meta name="csrf-token" content="<?= Yii::$app->request->csrfToken ?>">
     </head>
     <body>
     <?php $this->beginBody() ?>
@@ -42,12 +43,18 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 
         echo Nav::widget([
                 'options' => ['class' => 'navbar-nav ms-auto'],
-                'items' => [
-                        ['label' => 'Início', 'url' => ['/site/index']],
-                        ['label' => 'Minhas Despesas', 'url' => ['/dashboard/despesas']],
+                'items' => array_merge(
+                        [
+                                ['label' => 'Início', 'url' => ['/site/index']],
+                        ],
                         Yii::$app->user->isGuest
-                                ? ['label' => 'Login', 'url' => ['/site/login']]
-                                : '<li>'
+                                ? [
+                                ['label' => 'Signup', 'url' => ['/site/signup']],
+                                ['label' => 'Login', 'url' => ['/site/login']],
+                        ]
+                                : [
+                                ['label' => 'Minhas Despesas', 'url' => ['/dashboard/despesas']],
+                                '<li>'
                                 . Html::beginForm(['/site/logout'], 'post')
                                 . Html::submitButton(
                                         'Sair (' . Yii::$app->user->identity->username . ')',
@@ -55,7 +62,8 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                                 )
                                 . Html::endForm()
                                 . '</li>',
-                ],
+                        ]
+                ),
         ]);
 
         NavBar::end();
