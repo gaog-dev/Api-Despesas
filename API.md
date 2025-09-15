@@ -86,7 +86,7 @@ Response:
 }
 
 Visualizar Despesa
-Endpoint: GET /despesas/{id}
+Endpoint: GET /despesas/view/{id}
 
 Descrição: Retorna os detalhes de uma despesa específica.
 
@@ -103,7 +103,7 @@ Response:
 }
 
 Criar Despesa
-Endpoint: POST /despesas
+Endpoint: POST /despesas/create
 
 Descrição: Cria uma nova despesa.
 
@@ -127,7 +127,7 @@ Response:
 }
 
 Atualizar Despesa
-Endpoint: PUT /despesas/{id}
+Endpoint: PUT /despesas/update/{id}
 
 Descrição: Atualiza uma despesa existente.
 
@@ -151,7 +151,7 @@ Response:
 }
 
 Excluir Despesa
-Endpoint: DELETE /despesas/{id}
+Endpoint: DELETE /despesas/delete/{id}
 
 Descrição: Exclui uma despesa.
 
