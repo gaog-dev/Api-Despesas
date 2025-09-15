@@ -69,6 +69,9 @@ Acessar o banco de dados
 bash
 docker exec -it api-despesas-db mysql -uroot -prootpass api_despesas
 
+Suba a Aplicação no Docker para Testes
+docker-compose up -d --build
+
 Verificar logs
 bash
 # Logs da aplicação

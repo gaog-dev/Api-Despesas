@@ -13,6 +13,10 @@ class DespesaController extends ActiveController
     public function behaviors()
     {
         $behaviors = parent::behaviors();
+
+        // Permitir POST para a ação delete
+        $behaviors['verbFilter']['actions']['delete'] = ['POST', 'DELETE'];
+
         $behaviors['contentNegotiator']['formats']['application/json'] = Response::FORMAT_JSON;
         return $behaviors;
     }
@@ -46,7 +50,7 @@ class DespesaController extends ActiveController
     {
         $model = Despesa::findOne($id);
         if (!$model) {
-            throw new yii\web\NotFoundHttpException('Despesa não encontrada');
+            return ['success' => false, 'message' => 'Despesa não encontrada'];
         }
         return $model;
     }
@@ -128,6 +132,10 @@ class DespesaController extends ActiveController
 
         // Verificar se há dados
         if (!empty($rawData)) {
+            // Converter para UTF-8 se necessário
+            if (!mb_check_encoding($rawData, 'UTF-8')) {
+                $rawData = mb_convert_encoding($rawData, 'UTF-8', 'ISO-8859-1');
+            }
             // Decodificar JSON
             $postData = json_decode($rawData, true);
 
@@ -138,6 +146,15 @@ class DespesaController extends ActiveController
                 if (isset($postData['valor'])) $model->valor = $postData['valor'];
                 if (isset($postData['data'])) $model->data = $postData['data'];
                 if (isset($postData['categoria'])) $model->categoria = $postData['categoria'];
+
+                // Tratar a categoria
+                if (isset($postData['categoria'])) {
+                    $categoria = trim($postData['categoria']);
+                    $categoriasValidas = ['alimentação', 'transporte', 'lazer'];
+                    if (in_array($categoria, $categoriasValidas)) {
+                        $model->categoria = $categoria;
+                    }
+                }
             }
         }
 
