@@ -185,11 +185,17 @@ $this->title = 'Minhas Despesas';
 
     // Adicionar eventos aos botões
     function addEventListeners() {
+
         // Para editar
         document.querySelectorAll('.update-despesa').forEach(button => {
-            button.addEventListener('click', async function() {
+            console.log('Adicionando evento ao botão de editar');
+            button.addEventListener('click', async function(e) {
+                e.preventDefault(); // Prevenir comportamento padrão
                 const id = this.getAttribute('data-id');
+                console.log(`Clicou no botão de editar para a despesa ${id}`);
+
                 const despesa = await loadDespesa(id);
+                console.log('Despesa carregada:', despesa);
 
                 if (despesa) {
                     // Preencher o formulário com os dados da despesa
@@ -232,6 +238,8 @@ $this->title = 'Minhas Despesas';
 
                     // Rolar para o formulário
                     document.querySelector('.card').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Não foi possível carregar os dados da despesa.');
                 }
             });
         });

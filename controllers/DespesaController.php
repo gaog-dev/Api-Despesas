@@ -15,7 +15,11 @@ class DespesaController extends ActiveController
         $behaviors = parent::behaviors();
 
         // Permitir POST para a ação delete
-        $behaviors['verbFilter']['actions']['delete'] = ['POST', 'DELETE'];
+        $behaviors['verbFilter']['actions'] = [
+            'create' => ['POST'],
+            'update' => ['POST', 'PUT', 'PATCH'],
+            'delete' => ['POST', 'DELETE'],
+        ];
 
         $behaviors['contentNegotiator']['formats']['application/json'] = Response::FORMAT_JSON;
         return $behaviors;
@@ -32,6 +36,11 @@ class DespesaController extends ActiveController
     {
         $query = Despesa::find()->orderBy(['data' => SORT_DESC]);
 
+        // Se um ID for especificado, filtrar por ID
+        if ($id = Yii::$app->request->get('id')) {
+            Yii::info("Filtrando despesas pelo ID: $id", 'api');
+            $query->andWhere(['id' => $id]);
+        }
         // Aplicar filtros se existirem
         if (Yii::$app->request->get('categoria')) {
             $query->andFilterWhere(['categoria' => Yii::$app->request->get('categoria')]);
@@ -48,10 +57,15 @@ class DespesaController extends ActiveController
 
     public function actionView($id)
     {
+        Yii::info("Tentando carregar despesa com ID: $id", 'api');
+
         $model = Despesa::findOne($id);
         if (!$model) {
-            return ['success' => false, 'message' => 'Despesa não encontrada'];
+            Yii::error("Despesa com ID $id não encontrada", 'api');
+            throw new yii\web\NotFoundHttpException('Despesa não encontrada');
         }
+
+        Yii::info("Despesa encontrada: " . print_r($model->attributes, true), 'api');
         return $model;
     }
 
@@ -122,8 +136,11 @@ class DespesaController extends ActiveController
 
     public function actionUpdate($id)
     {
+        Yii::info("Tentando atualizar despesa com ID: $id", 'api');
+
         $model = Despesa::findOne($id);
         if (!$model) {
+            Yii::error("Despesa com ID $id não encontrada", 'api');
             return ['success' => false, 'message' => 'Despesa não encontrada'];
         }
 
@@ -136,6 +153,7 @@ class DespesaController extends ActiveController
             if (!mb_check_encoding($rawData, 'UTF-8')) {
                 $rawData = mb_convert_encoding($rawData, 'UTF-8', 'ISO-8859-1');
             }
+
             // Decodificar JSON
             $postData = json_decode($rawData, true);
 
@@ -145,7 +163,6 @@ class DespesaController extends ActiveController
                 if (isset($postData['descricao'])) $model->descricao = $postData['descricao'];
                 if (isset($postData['valor'])) $model->valor = $postData['valor'];
                 if (isset($postData['data'])) $model->data = $postData['data'];
-                if (isset($postData['categoria'])) $model->categoria = $postData['categoria'];
 
                 // Tratar a categoria
                 if (isset($postData['categoria'])) {
@@ -160,8 +177,10 @@ class DespesaController extends ActiveController
 
         // Validar e salvar
         if ($model->validate() && $model->save()) {
+            Yii::info("Despesa atualizada com sucesso. ID: $id", 'api');
             return ['success' => true, 'message' => 'Despesa atualizada com sucesso!', 'data' => $model];
         } else {
+            Yii::error("Erros ao atualizar despesa: " . print_r($model->errors, true), 'api');
             return ['success' => false, 'errors' => $model->errors];
         }
     }
