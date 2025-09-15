@@ -15,9 +15,10 @@ class Despesa extends ActiveRecord
     {
         return [
             [['descricao', 'valor', 'data', 'categoria', 'user_id'], 'required'],
-            [['descricao'], 'string'],
+            [['descricao'], 'string', 'max' => 255],
             [['valor'], 'number', 'min' => 0.01],
             [['data'], 'date', 'format' => 'php:Y-m-d'],
+            [['categoria'], 'string', 'max' => 100],
             [['categoria'], 'in', 'range' => ['alimentação', 'transporte', 'lazer']],
             [['user_id'], 'integer'],
             [['user_id'], 'exist', 'targetClass' => User::class, 'targetAttribute' => 'id'],

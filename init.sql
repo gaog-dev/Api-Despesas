@@ -28,10 +28,10 @@ CREATE TABLE IF NOT EXISTS `categorias` (
 -- tabela despesas
 CREATE TABLE IF NOT EXISTS `despesas` (
                                           `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                                          `descricao` VARCHAR(255) NOT NULL,
+                                          `descricao` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
                                           `valor` DECIMAL(10,2) NOT NULL,
                                           `data` DATE NOT NULL,
-                                          `categoria` ENUM('alimentação','transporte','lazer') NOT NULL,
+                                          `categoria` ENUM('alimentação','transporte','lazer') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
                                           `user_id` INT NOT NULL,
                                           `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                           `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

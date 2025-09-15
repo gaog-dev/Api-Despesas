@@ -11,22 +11,8 @@ class DashboardController extends Controller
 {
     public function actionDespesas()
     {
+        // Apenas renderizar a view, sem processar formulário
         $model = new Despesa();
-
-        if (Yii::$app->request->isPost) {
-            $postData = Yii::$app->request->post();
-
-            // 🔥 Chama API de criação
-            $ch = curl_init(Yii::$app->urlManager->createAbsoluteUrl(['/despesas/create']));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData['Despesas']));
-            $response = curl_exec($ch);
-            curl_close($ch);
-
-            Yii::$app->session->setFlash('success', 'Despesa adicionada com sucesso!');
-            return $this->redirect(['dashboard/despesas']);
-        }
 
         // Lista despesas direto do banco
         $dataProvider = new ActiveDataProvider([
@@ -39,28 +25,26 @@ class DashboardController extends Controller
             'dataProvider' => $dataProvider,
         ]);
     }
+
     public function actionCreate()
     {
         $model = new Despesa();
-
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->session->setFlash('success', 'Despesa adicionada com sucesso!');
             return $this->redirect(['dashboard/despesas']);
         }
-
         return $this->render('create', [
             'model' => $model,
         ]);
     }
+
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             Yii::$app->session->setFlash('success', 'Despesa atualizada com sucesso!');
             return $this->redirect(['/dashboard/despesas']);
         }
-
         return $this->render('update', ['model' => $model]);
     }
 
@@ -72,6 +56,7 @@ class DashboardController extends Controller
         }
         return $this->redirect(['dashboard/despesas']);
     }
+
     protected function findModel($id)
     {
         if (($model = Despesa::findOne($id)) !== null) {
