@@ -4,7 +4,7 @@ namespace app\models;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
 
-class Despesa extends ActiveRecord
+class Despesa extends \yii\db\ActiveRecord
 {
     public static function tableName()
     {

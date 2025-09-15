@@ -129,20 +129,6 @@ $this->title = 'Minhas Despesas';
             categoria: this.querySelector('select[name="categoria"]').value
         };
 
-        console.log('Dados a serem enviados:', formData);
-        console.log('Tipo de dados:', {
-            descricao: typeof formData.descricao,
-            valor: typeof formData.valor,
-            data: typeof formData.data,
-            categoria: typeof formData.categoria
-        });
-        console.log('Tamanho dos dados:', {
-            descricao: formData.descricao.length,
-            valor: formData.valor.length,
-            data: formData.data.length,
-            categoria: formData.categoria.length
-        });
-
         // Validar se todos os campos estão preenchidos
         if (!formData.descricao || !formData.valor || !formData.data || !formData.categoria) {
             const alertDiv = document.createElement('div');
@@ -158,32 +144,16 @@ $this->title = 'Minhas Despesas';
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
         try {
-            // Converter para JSON e verificar
-            const jsonBody = JSON.stringify(formData);
-            console.log('JSON a ser enviado:', jsonBody);
-
             const response = await fetch('/api/despesas/create', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json; charset=utf-8',
                     'X-CSRF-Token': csrfToken,
                 },
-                body: jsonBody
+                body: JSON.stringify(formData)
             });
 
-            console.log('Status da resposta:', response.status);
-            console.log('Headers da resposta:', response.headers);
-
-            // Verificar se a resposta é JSON
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                const textResponse = await response.text();
-                console.error('Resposta não é JSON:', textResponse);
-                throw new Error('Resposta do servidor não é JSON');
-            }
-
             const result = await response.json();
-            console.log('Resposta do servidor:', result);
 
             if (result.success) {
                 // Exibir mensagem de sucesso
@@ -201,7 +171,7 @@ $this->title = 'Minhas Despesas';
                 // Recarregar a lista de despesas
                 await loadDespesas();
             } else {
-                // Exibir mensagem de erro detalhada
+                // Exibir mensagem de erro
                 let errorMessage = 'Erro ao salvar despesa';
                 if (result.errors) {
                     errorMessage = Object.entries(result.errors)

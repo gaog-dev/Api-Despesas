@@ -86,9 +86,14 @@ class DespesaController extends ActiveController
         $model->valor = isset($postData['valor']) ? floatval($postData['valor']) : 0;
         $model->data = isset($postData['data']) ? date('Y-m-d', strtotime($postData['data'])) : date('Y-m-d');
 
-        // Tratar a categoria
+        // Tratar a categoria com mais cuidado
         if (isset($postData['categoria'])) {
+            // Normalizar a categoria
             $categoria = trim($postData['categoria']);
+
+            // Remover possíveis caracteres especiais ou invisíveis
+            $categoria = preg_replace('/[\x00-\x1F\x7F\xA0]/u', '', $categoria);
+
             // Garantir que a categoria seja uma das opções válidas
             $categoriasValidas = ['alimentação', 'transporte', 'lazer'];
             if (in_array($categoria, $categoriasValidas)) {
