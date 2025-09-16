@@ -133,4 +133,5 @@ Autor
 Guilherme Oliveira
 
 <img width="1844" height="677" alt="image" src="https://github.com/user-attachments/assets/34ed6915-1c3a-4393-be64-070fafc90091" />
-<img width="1766" height="788" alt="image" src="https://github.com/user-attachments/assets/39f66e9c-8c06-4744-bdf0-ddcabdedb601" />
+<img width="1844" height="677" alt="image" src="https://github.com/user-attachments/assets/242437a5-a72e-445b-b22d-8b4302d34566" />
+
