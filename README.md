@@ -131,3 +131,6 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo LICENSE para d
 
 Autor
 Guilherme Oliveira
+
+<img width="1844" height="677" alt="image" src="https://github.com/user-attachments/assets/34ed6915-1c3a-4393-be64-070fafc90091" />
+<img width="1766" height="788" alt="image" src="https://github.com/user-attachments/assets/39f66e9c-8c06-4744-bdf0-ddcabdedb601" />
