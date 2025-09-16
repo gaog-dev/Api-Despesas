@@ -13,11 +13,13 @@ $this->title = 'Despesas Pessoais API';
             Gerencie suas despesas de forma simples e rápida.
             Uma aplicação <strong>API RESTful</strong> moderna, integrada ao Yii2.
         </p>
-
         <div class="mt-4">
-            <?= Html::a('Minhas Despesas', ['/dashboard/despesas'], ['class' => 'btn btn-lg btn-success me-2']) ?>
+            <?php if (!Yii::$app->user->isGuest): ?>
+                <?= Html::a('Minhas Despesas', ['/dashboard/despesas'], ['class' => 'btn btn-lg btn-success me-2']) ?>
+            <?php else: ?>
+                <?= Html::a('Minhas Despesas', ['/site/login'], ['class' => 'btn btn-lg btn-success me-2']) ?>
+            <?php endif; ?>
         </div>
-    </div>
 </div>
 
 <!-- Features -->

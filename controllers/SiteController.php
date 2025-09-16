@@ -16,7 +16,7 @@ class SiteController extends Controller
             'model' => $model,
         ]);
     }
-    
+
     public function actionLogin()
     {
         if (!Yii::$app->user->isGuest) {

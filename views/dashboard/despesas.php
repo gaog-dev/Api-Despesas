@@ -9,14 +9,6 @@ $this->title = 'Minhas Despesas';
 <div class="container mt-4">
     <h3 class="mb-3"><?= Html::encode($this->title) ?></h3>
 
-    <!-- Flash messages -->
-    <?php foreach (Yii::$app->session->getAllFlashes() as $type => $message): ?>
-        <div class="alert alert-<?= $type ?> alert-dismissible fade show" role="alert">
-            <?= $message ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    <?php endforeach; ?>
-
     <!-- Formulário para adicionar despesa via API -->
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-primary text-white">Adicionar Nova Despesa</div>
@@ -118,31 +110,71 @@ $this->title = 'Minhas Despesas';
 </div>
 
 <script>
+    // Criar container de notificações no footer se não existir
+    document.addEventListener('DOMContentLoaded', function() {
+        // Verificar se já existe um container de notificações
+        if (!document.querySelector('.notification-footer')) {
+            // Criar container de notificações no footer
+            const notificationContainer = document.createElement('div');
+            notificationContainer.className = 'notification-footer fixed-bottom p-3';
+            notificationContainer.style.zIndex = '9999';
+            document.body.appendChild(notificationContainer);
+        }
+
+        // Carregar despesas ao carregar a página
+        loadDespesas();
+        // Adicionar eventos aos botões existentes
+        addEventListeners();
+    });
+
+    // Função para exibir notificações no footer
+    function showNotification(message, type = 'info') {
+        // Remover notificações anteriores para evitar acúmulo
+        const existingNotifications = document.querySelectorAll('.notification-footer .alert');
+        existingNotifications.forEach(notif => notif.remove());
+
+        // Criar elemento de notificação
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.style.marginBottom = '0';
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        // Adicionar ao container de notificações no footer
+        const notificationContainer = document.querySelector('.notification-footer');
+        notificationContainer.appendChild(alertDiv);
+
+        // Auto-remover após 5 segundos
+        setTimeout(() => {
+            alertDiv.classList.remove('show');
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 150);
+        }, 5000);
+    }
+
     // Função para carregar despesas via API
     async function loadDespesas() {
         const filterForm = document.getElementById('filter-form');
         const params = new URLSearchParams(new FormData(filterForm));
-
         try {
             const response = await fetch(`/api/despesas?${params.toString()}`);
             const despesas = await response.json();
-
             // Atualizar a tabela
             const tableBody = document.querySelector('#despesas-list table tbody');
             if (!tableBody) {
                 console.error('Tabela não encontrada');
                 return;
             }
-
             tableBody.innerHTML = '';
-
             if (!Array.isArray(despesas) || despesas.length === 0) {
                 const row = document.createElement('tr');
                 row.innerHTML = '<td colspan="5" class="text-center">Nenhuma despesa encontrada</td>';
                 tableBody.appendChild(row);
                 return;
             }
-
             despesas.forEach(despesa => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -161,7 +193,6 @@ $this->title = 'Minhas Despesas';
                 `;
                 tableBody.appendChild(row);
             });
-
             // Adicionar eventos aos novos botões
             addEventListeners();
         } catch (error) {
@@ -185,18 +216,12 @@ $this->title = 'Minhas Despesas';
 
     // Adicionar eventos aos botões
     function addEventListeners() {
-
         // Para editar
         document.querySelectorAll('.update-despesa').forEach(button => {
-            console.log('Adicionando evento ao botão de editar');
             button.addEventListener('click', async function(e) {
-                e.preventDefault(); // Prevenir comportamento padrão
+                e.preventDefault();
                 const id = this.getAttribute('data-id');
-                console.log(`Clicou no botão de editar para a despesa ${id}`);
-
                 const despesa = await loadDespesa(id);
-                console.log('Despesa carregada:', despesa);
-
                 if (despesa) {
                     // Preencher o formulário com os dados da despesa
                     document.querySelector('input[name="descricao"]').value = despesa.descricao;
@@ -206,8 +231,6 @@ $this->title = 'Minhas Despesas';
 
                     // Mudar o comportamento do formulário para atualização
                     const form = document.getElementById('despesa-form');
-
-                    // Armazenar o ID da despesa sendo editada
                     form.dataset.editId = id;
 
                     // Alterar o texto do botão de submit
@@ -239,7 +262,7 @@ $this->title = 'Minhas Despesas';
                     // Rolar para o formulário
                     document.querySelector('.card').scrollIntoView({ behavior: 'smooth' });
                 } else {
-                    alert('Não foi possível carregar os dados da despesa.');
+                    showNotification('Não foi possível carregar os dados da despesa.', 'danger');
                 }
             });
         });
@@ -248,10 +271,8 @@ $this->title = 'Minhas Despesas';
         document.querySelectorAll('.delete-despesa').forEach(button => {
             button.addEventListener('click', async function() {
                 const id = this.getAttribute('data-id');
-
                 if (confirm('Tem certeza que deseja excluir esta despesa?')) {
                     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-
                     try {
                         const response = await fetch(`/api/despesas/delete/${id}`, {
                             method: 'POST',
@@ -259,40 +280,16 @@ $this->title = 'Minhas Despesas';
                                 'X-CSRF-Token': csrfToken,
                             }
                         });
-
                         const result = await response.json();
-
                         if (result.success) {
-                            // Exibir mensagem de sucesso
-                            const alertDiv = document.createElement('div');
-                            alertDiv.className = 'alert alert-success alert-dismissible fade show';
-                            alertDiv.innerHTML = `
-                                ${result.message}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            `;
-                            document.querySelector('.container').prepend(alertDiv);
-
-                            // Recarregar a lista de despesas
+                            showNotification(result.message, 'success');
                             await loadDespesas();
                         } else {
-                            // Exibir mensagem de erro
-                            const alertDiv = document.createElement('div');
-                            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-                            alertDiv.innerHTML = `
-                                Erro ao excluir despesa: ${result.message}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            `;
-                            document.querySelector('.container').prepend(alertDiv);
+                            showNotification(`Erro ao excluir despesa: ${result.message}`, 'danger');
                         }
                     } catch (error) {
                         console.error('Error:', error);
-                        const alertDiv = document.createElement('div');
-                        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-                        alertDiv.innerHTML = `
-                            Erro ao excluir despesa: ${error.message}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        `;
-                        document.querySelector('.container').prepend(alertDiv);
+                        showNotification(`Erro ao excluir despesa: ${error.message}`, 'danger');
                     }
                 }
             });
@@ -313,18 +310,11 @@ $this->title = 'Minhas Despesas';
 
         // Validar se todos os campos estão preenchidos
         if (!formData.descricao || !formData.valor || !formData.data || !formData.categoria) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-            alertDiv.innerHTML = `
-                Por favor, preencha todos os campos.
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.querySelector('.container').prepend(alertDiv);
+            showNotification('Por favor, preencha todos os campos.', 'danger');
             return;
         }
 
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-
         try {
             // Verificar se é uma atualização ou criação
             const isUpdate = this.dataset.editId;
@@ -342,14 +332,7 @@ $this->title = 'Minhas Despesas';
             const result = await response.json();
 
             if (result.success) {
-                // Exibir mensagem de sucesso
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'alert alert-success alert-dismissible fade show';
-                alertDiv.innerHTML = `
-                    ${result.message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-                document.querySelector('.container').prepend(alertDiv);
+                showNotification(result.message, 'success');
 
                 // Limpar formulário
                 this.reset();
@@ -361,7 +344,6 @@ $this->title = 'Minhas Despesas';
                     submitButton.textContent = 'Adicionar';
                     submitButton.classList.remove('btn-primary');
                     submitButton.classList.add('btn-success');
-
                     const cancelButton = this.querySelector('.cancel-edit');
                     if (cancelButton) {
                         cancelButton.remove();
@@ -380,24 +362,11 @@ $this->title = 'Minhas Despesas';
                 } else if (result.message) {
                     errorMessage = result.message;
                 }
-
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-                alertDiv.innerHTML = `
-                    Erro ao salvar despesa:<br>${errorMessage}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-                document.querySelector('.container').prepend(alertDiv);
+                showNotification(`Erro ao salvar despesa:<br>${errorMessage}`, 'danger');
             }
         } catch (error) {
             console.error('Error:', error);
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-            alertDiv.innerHTML = `
-                Erro ao salvar despesa: ${error.message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.querySelector('.container').prepend(alertDiv);
+            showNotification(`Erro ao salvar despesa: ${error.message}`, 'danger');
         }
     });
 
@@ -405,14 +374,5 @@ $this->title = 'Minhas Despesas';
     document.getElementById('filter-form').addEventListener('submit', async function(e) {
         e.preventDefault();
         await loadDespesas();
-    });
-
-    // Inicializar quando o documento estiver carregado
-    document.addEventListener('DOMContentLoaded', function() {
-        // Carregar despesas ao carregar a página
-        loadDespesas();
-
-        // Adicionar eventos aos botões existentes
-        addEventListeners();
     });
 </script>

@@ -74,18 +74,18 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                     'links' => $this->params['breadcrumbs'] ?? [],
             ]) ?>
 
-            <!-- ✅ Exibir flash messages do controller -->
-            <?php foreach (Yii::$app->session->getAllFlashes() as $type => $message): ?>
-                <div class="alert alert-<?= $type ?> alert-dismissible fade show" role="alert">
-                    <?= $message ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-                </div>
-            <?php endforeach; ?>
-
             <?= $content ?>
         </div>
     </div>
-
+    </body>
+    <!-- ✅ Exibir flash messages do controller -->
+    <?php foreach (Yii::$app->session->getAllFlashes() as $type => $message): ?>
+        <div class="alert alert-<?= $type ?> alert-dismissible fade show" role="alert">
+            <?= $message ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+    <?php endforeach; ?>
+    <?php $this->endBody() ?>
     <footer class="footer bg-light text-center py-3 mt-auto">
         <div class="container">
             <p class="text-muted mb-0">
@@ -93,8 +93,5 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             </p>
         </div>
     </footer>
-
-    <?php $this->endBody() ?>
-    </body>
     </html>
 <?php $this->endPage() ?>
